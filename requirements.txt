@@ -1,0 +1,51 @@
+# =========================
+# CORE AI / LLM STACK
+# =========================
+openai>=1.40.0
+langchain>=0.2.14
+langchain-core>=0.2.30
+langchain-community>=0.2.12
+langchain-openai>=0.1.22
+
+# LCEL / Runnables support (built into langchain-core but keep updated)
+
+# =========================
+# AGENT SYSTEM
+# =========================
+tavily-python>=0.3.6
+
+# =========================
+# WEB SCRAPING
+# =========================
+beautifulsoup4>=4.12.3
+lxml>=5.2.2
+requests>=2.32.3
+
+# =========================
+# OPTIONAL: ADVANCED PARSING
+# =========================
+html5lib>=1.1
+
+# =========================
+# ENV MANAGEMENT
+# =========================
+python-dotenv>=1.0.1
+
+# =========================
+# DATA HANDLING (useful for agents)
+# =========================
+pydantic>=2.7.4
+
+# =========================
+# RETRIEVAL / SEARCH HELPERS
+# =========================
+duckduckgo-search>=6.2.6
+
+# =========================
+# DEBUGGING / DEV
+# =========================
+rich>=13.7.1
+tqdm>=4.66.4
+
+uvicorn>=0.30.0
+fastapi>=0.111.0
