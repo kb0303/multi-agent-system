@@ -28,6 +28,7 @@ def scrape_url(url: str) -> str:
         soup = BeautifulSoup(response.text, 'html.parser')
         for tag in soup(['script', 'style', 'nav', 'footer', 'header', 'aside', 'form', 'noscript', 'iframe', 'ads', 'advertisement', 'cookie', 'consent', 'popup', 'modal', 'head']):
             tag.decompose()
+        print(f"Scraping URL: {url}")
         return soup.get_text(separator=" ", strip=True)[:3000]
     except Exception as e:
         return f"Error scraping URL: {str(e)}"

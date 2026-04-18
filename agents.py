@@ -8,67 +8,98 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Model setup
-llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
+# llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
+def get_llm(model_name: str):
+    return ChatGroq(model=model_name, temperature=0)
 
 # 1st agent
-def build_search_agent():
+def build_search_agent(llm):
     return create_agent(
         model=llm,
         tools=[web_search],
+        system_prompt="You MUST use the web_search tool. Always return URLs. Do not answer from your own knowledge."
     )
 
 # 2nd agent
-def build_reader_agent():
+def build_reader_agent(llm):
     return create_agent(
         model=llm,
         tools=[scrape_url],
     )
     
     
-# write chain
+# writer chain
+def get_writer_chain(llm):
+    writer_prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are an expert research writer. Write clear, structured and insightful reports."),
+        ("human", """Write a detailed research report on the topic below.
 
-writer_prompt = ChatPromptTemplate.from_messages([
-     ("system", "You are an expert research writer. Write clear, structured and insightful reports."),
-    ("human", """Write a detailed research report on the topic below.
+    Topic: {topic}
 
-Topic: {topic}
+    Research Gathered:
+    {research}
 
-Research Gathered:
-{research}
+    Structure the report as:
+    - Introduction
+    - Key Findings (minimum 3 well-explained points)
+    - Conclusion
+    - Sources (list all URLs found in the research)
 
-Structure the report as:
-- Introduction
-- Key Findings (minimum 3 well-explained points)
-- Conclusion
-- Sources (list all URLs found in the research)
+    Be detailed, factual and professional."""),
+    ])
 
-Be detailed, factual and professional."""),
-])
+    return writer_prompt | llm | StrOutputParser()
 
-writer_chain = writer_prompt | llm | StrOutputParser()
+
+# debate chain
+def get_debate_chain(llm):
+    debate_prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are an expert analyst capable of arguing both sides of a topic clearly and intelligently."),
+        ("human", """
+    Based on the research report below, generate a structured debate.
+
+    Report:
+    {report}
+
+    Respond in this exact format:
+
+    🟢 Optimist View:
+    - Present the most positive, opportunity-focused perspective
+    - Highlight benefits, growth, upside
+
+    🔴 Skeptic View:
+    - Present critical concerns, risks, and limitations
+    - Challenge assumptions and highlight downsides
+
+    Keep both sides balanced, realistic, and insightful.
+    """),
+    ])
+
+    return debate_prompt | llm | StrOutputParser()
 
 # critic_chain
-critic_prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a sharp and constructive research critic. Be honest and specific."),
-    ("human", """Review the research report below and evaluate it strictly.
+def get_critic_chain(llm):
+    critic_prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are a sharp and constructive research critic. Be honest and specific."),
+        ("human", """Review the research report below and evaluate it strictly.
 
-Report:
-{report}
+    Report:
+    {report}
 
-Respond in this exact format:
+    Respond in this exact format:
 
-Score: X/10
+    Score: X/10
 
-Strengths:
-- ...
-- ...
+    Strengths:
+    - ...
+    - ...
 
-Areas to Improve:
-- ...
-- ...
+    Areas to Improve:
+    - ...
+    - ...
 
-One line verdict:
-..."""),
-])
+    One line verdict:
+    ..."""),
+    ])
 
-critic_chain = critic_prompt | llm | StrOutputParser()
+    return critic_prompt | llm | StrOutputParser()

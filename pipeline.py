@@ -1,7 +1,15 @@
-from agents import build_search_agent, build_reader_agent, writer_chain, critic_chain
+from agents import (
+    get_llm,
+    build_search_agent,
+    build_reader_agent,
+    get_writer_chain,
+    get_debate_chain,
+    get_critic_chain
+)
 
-def run_research_pipeline(topic: str) -> dict:
-    
+def run_research_pipeline(topic: str, model_name: str) -> dict:
+
+    llm = get_llm(model_name)
     state = {}
     
     # Step 1 - search agent working
@@ -9,7 +17,7 @@ def run_research_pipeline(topic: str) -> dict:
     print("step 1 - search agent is working ...")
     print("="*50)
     
-    search_agent = build_search_agent()
+    search_agent = build_search_agent(llm)
     search_result = search_agent.invoke({
         "messages": [("user", f"Find recent and reliable information about: {topic}")]
     })
@@ -22,7 +30,7 @@ def run_research_pipeline(topic: str) -> dict:
     print("step 2 - reader agent is scrapping top resources ...")
     print("="*50)
     
-    reader_agent = build_reader_agent()
+    reader_agent = build_reader_agent(llm)
     reader_result = reader_agent.invoke({
         "messages": [("user", 
             f"Based on the following search results about '{topic}',"
@@ -45,7 +53,7 @@ def run_research_pipeline(topic: str) -> dict:
         f"DETAILED SCRAPED CONTENT: \n {state['scraped_content']}"
     )
     
-    state["report"] = writer_chain.invoke(
+    state["report"] = get_writer_chain(llm).invoke(
         {
             "topic": topic,
             "research": research_combined
@@ -53,13 +61,24 @@ def run_research_pipeline(topic: str) -> dict:
     )
     
     print("\n Final Report :\n", state["report"])
+
+    # step 4 - debate chain working
+    print("\n"+" ="*50)
+    print("step 4 - debate chain is generating perspectives ...")
+    print("="*50)
+
+    state["debate"] = get_debate_chain(llm).invoke({
+    "report": state["report"]
+    })
+
+    print("\n Debate Output :\n", state["debate"])
     
-    # step 4 - critic chain working
+    # step 5 - critic chain working
     print("\n"+" ="*50)
     print("step 4 - critic chain is evaluating the report ...")
     print("="*50)
     
-    state["feedback"] = critic_chain.invoke(
+    state["feedback"] = get_critic_chain(llm).invoke(
         {
             "report": state["report"]
         }

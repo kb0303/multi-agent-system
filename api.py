@@ -17,16 +17,18 @@ app.add_middleware(
 
 class ResearchRequest(BaseModel):
     topic: str
+    model: str
 
 class ResearchResponse(BaseModel):
     search_results: str
     scraped_content: str
     report: str
     feedback: str
+    debate: str
 
 @app.post("/api/research", response_model=ResearchResponse)
 async def research(request: ResearchRequest):
     # Run the blocking pipeline in a thread so FastAPI stays responsive
     loop = asyncio.get_event_loop()
-    state = await loop.run_in_executor(None, run_research_pipeline, request.topic)
+    state = await loop.run_in_executor(None, run_research_pipeline, request.topic, request.model)
     return state
