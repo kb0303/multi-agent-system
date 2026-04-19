@@ -2,7 +2,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from pipeline import run_research_pipeline
 import asyncio
 
 app = FastAPI()
@@ -28,7 +27,8 @@ class ResearchResponse(BaseModel):
 
 @app.post("/api/research", response_model=ResearchResponse)
 async def research(request: ResearchRequest):
-    # Run the blocking pipeline in a thread so FastAPI stays responsive
+    from pipeline import run_research_pipeline
+
     loop = asyncio.get_event_loop()
     state = await loop.run_in_executor(None, run_research_pipeline, request.topic, request.model)
     return state
