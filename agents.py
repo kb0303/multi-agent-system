@@ -17,7 +17,7 @@ def build_search_agent(llm):
     return create_agent(
         model=llm,
         tools=[web_search],
-        system_prompt="You MUST use the web_search tool. Always return URLs. Do not answer from your own knowledge."
+        system_prompt="You MUST use the web_search tool. Always return correct and working URLs. Do not answer from your own knowledge."
     )
 
 # 2nd agent
@@ -25,6 +25,7 @@ def build_reader_agent(llm):
     return create_agent(
         model=llm,
         tools=[scrape_url],
+        system_prompt="You MUST use the scrape_url tool. Always return the scraped content from the provided URL. Do not answer from your own knowledge., till you get the content."
     )
     
     
@@ -61,13 +62,13 @@ def get_debate_chain(llm):
     Report:
     {report}
 
-    Respond in this exact format:
+    Respond in this exact format (follow exactly, no markdown, no extra symbols):
 
-    🟢 Optimist View:
+    Optimist View:
     - Present the most positive, opportunity-focused perspective
     - Highlight benefits, growth, upside
 
-    🔴 Skeptic View:
+    Skeptic View:
     - Present critical concerns, risks, and limitations
     - Challenge assumptions and highlight downsides
 
