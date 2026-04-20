@@ -48,6 +48,7 @@ async def research(request: ResearchRequest):
 
     except Exception as e:
         msg = str(e).lower()
+        print(f"Error in research pipeline: {msg}")
 
         # 🧠 token limit
         if "request too large" in msg or "tokens" in msg:
