@@ -89,6 +89,6 @@ async def research(request: ResearchRequest):
             content={
                 "type": "unknown_error",
                 "message": "Something went wrong while processing your request.",
-                "suggestion": "Try again or switch models."
+                "suggestion": "Try again or switch to a different model."
             }
         )
