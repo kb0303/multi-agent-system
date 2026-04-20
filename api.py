@@ -3,13 +3,19 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import asyncio
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# Allow Next.js dev server to call this
+origins = [
+    "http://localhost:3000",
+    "https://multi-agent-ui-sigma.vercel.app",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
