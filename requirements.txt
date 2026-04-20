@@ -6,6 +6,7 @@ langchain>=0.2.14
 langchain-core>=0.2.30
 langchain-community>=0.2.12
 langchain-openai>=0.1.22
+langchain-groq>=0.1.5
 
 # LCEL / Runnables support (built into langchain-core but keep updated)
 
