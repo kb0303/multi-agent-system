@@ -9,7 +9,7 @@ load_dotenv()
 
 tavily = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 
-@tool
+@tool("web_search")
 def web_search(query: str) -> str:
     """Search the web for recent and reliable information on a topic. return Titles, URLs and snippets."""
     results = tavily.search(query, max_results=5)
@@ -20,7 +20,7 @@ def web_search(query: str) -> str:
         formatted_results.append(f"Title: {r['title']}\nURL: {r['url']}\nSnippet: {r['content'][:300]}\n")
     return "\n-----\n".join(formatted_results)
 
-@tool
+@tool("scrape_url")
 def scrape_url(url: str) -> str:
     """Scrape the and return clean text content from a given URL for deeper reading."""
     try:

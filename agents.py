@@ -17,7 +17,7 @@ def build_search_agent(llm):
     return create_agent(
         model=llm,
         tools=[web_search],
-        system_prompt="You MUST use the web_search tool. Always return correct and working URLs. Do not answer from your own knowledge."
+        system_prompt="You MUST use the web_search tool 'web_search' (exact match). Always return correct and working URLs. Do not answer from your own knowledge."
     )
 
 # 2nd agent
