@@ -5,8 +5,20 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+import json
+from stream_manager import create_stream
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+main_loop = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global main_loop
+    main_loop = asyncio.get_running_loop()
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 origins = [
     "http://localhost:3000",
@@ -24,6 +36,7 @@ app.add_middleware(
 class ResearchRequest(BaseModel):
     topic: str
     model: str
+    session_id: str
 
 class ResearchResponse(BaseModel):
     search_results: str
@@ -37,13 +50,13 @@ async def research(request: ResearchRequest):
     from pipeline import run_research_pipeline
 
     try:
-        loop = asyncio.get_event_loop()
-        state = await loop.run_in_executor(
-            None,
+        state = await asyncio.to_thread(
             run_research_pipeline,
             request.topic,
-            request.model
-        )
+            request.model,
+            request.session_id,
+            main_loop
+        )   
         return state
 
     except Exception as e:
@@ -92,3 +105,27 @@ async def research(request: ResearchRequest):
                 "suggestion": "Try again or switch to a different model."
             }
         )
+        
+
+@app.get("/api/stream/{session_id}")
+async def stream(session_id: str):
+
+    queue = create_stream(session_id)
+
+    async def event_generator():
+        while True:
+            data = await queue.get()
+            yield f"data: {json.dumps(data)}\n\n"
+
+            if data.get("type") == "done":
+                break
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )

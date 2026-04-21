@@ -10,7 +10,7 @@ load_dotenv()
 # Model setup
 # llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
 def get_llm(model_name: str):
-    return ChatGroq(model=model_name, temperature=0)
+    return ChatGroq(model=model_name, temperature=0, streaming=True)
 
 # 1st agent
 def build_search_agent(llm):
