@@ -33,6 +33,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/api")
+async def health_check():
+    print("Health check endpoint hit")
+    return {"status": "ok"}
+
 class ResearchRequest(BaseModel):
     topic: str
     model: str

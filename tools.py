@@ -12,7 +12,7 @@ tavily = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 @tool("web_search")
 def web_search(query: str) -> str:
     """Search the web for recent and reliable information on a topic. return Titles, URLs and snippets."""
-    results = tavily.search(query, max_results=5)
+    results = tavily.search(query, max_results=6)
 
     formatted_results = []
     
